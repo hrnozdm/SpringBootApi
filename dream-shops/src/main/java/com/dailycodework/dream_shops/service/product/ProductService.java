@@ -21,13 +21,12 @@ public class ProductService implements IProductService{
     private final CategoryRepository categoryRepository;
     @Override
     public Product addProduct(AddProductRequest request) {
-        Category category= Optional.ofNullable(categoryRepository.
-                findByName(request.getCategory().getName())).orElseGet(()->{
-                    Category newCategory=new Category(request.getCategory().getName());
-                    return categoryRepository.save(newCategory);
-        });
+        Category category=categoryRepository.findByName(request.getCategory().getName());
 
-        request.setCategory(category);
+        if (category!=null){
+            category=new Category(request.getCategory().getName());
+            categoryRepository.save(category);
+        }
         return  productRepository.save(createProduct(request,category));
 
     }
