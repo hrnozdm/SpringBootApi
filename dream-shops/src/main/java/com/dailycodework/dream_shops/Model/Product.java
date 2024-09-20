@@ -6,10 +6,8 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
-@NoArgsConstructor
 @Entity
 public class Product {
     @Id
@@ -28,4 +26,12 @@ public class Product {
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "product",orphanRemoval = true)
     private List<Image> images;
 
+    public Product(String name, String brand, BigDecimal price, int inventory, String description, Category category) {
+        this.name=name;
+        this.brand=brand;
+        this.price=price;
+        this.inventory=inventory;
+        this.description=description;
+        this.category=category;
+    }
 }
