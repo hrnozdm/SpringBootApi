@@ -1,5 +1,4 @@
 package com.dailycodework.dream_shops.service.product;
-
 import com.dailycodework.dream_shops.Model.Category;
 import com.dailycodework.dream_shops.Model.Product;
 import com.dailycodework.dream_shops.exception.ProductNotFoundException;
@@ -8,9 +7,7 @@ import com.dailycodework.dream_shops.repository.ProductRepository;
 import com.dailycodework.dream_shops.request.AddProductRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -60,8 +57,18 @@ public class ProductService implements IProductService{
     }
 
     @Override
-    public void updateProduct(Long productId, Product product) {
+    public void updateProduct(Long productId, Product updatedProduct) {
 
+         Product existingProduct=productRepository.findById(productId).orElseThrow(()->new ProductNotFoundException("Product Not Found"));
+
+        existingProduct.setName(updatedProduct.getName());
+        existingProduct.setBrand(updatedProduct.getBrand());
+        existingProduct.setPrice(updatedProduct.getPrice());
+        existingProduct.setInventory(updatedProduct.getInventory());
+        existingProduct.setDescription(updatedProduct.getDescription());
+        existingProduct.setCategory(updatedProduct.getCategory());
+
+        productRepository.save(existingProduct);
 
     }
 
