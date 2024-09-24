@@ -20,8 +20,13 @@ public class ProductController {
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponse> getAllProducts() {
-        List<Product> products=productService.getAllProducts();
-        return ResponseEntity.ok(new ApiResponse("success",products));
+        try {
+            List<Product> products=productService.getAllProducts();
+            return ResponseEntity.ok(new ApiResponse("success",products));
+        }catch (Exception e){
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse("No Data", null));
+        }
+
     }
 
     @PostMapping("/add")
@@ -41,6 +46,33 @@ public class ProductController {
             return  ResponseEntity.ok(new ApiResponse("success",product));
         }catch (ResourceNotFoundException e){
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(),null));
+        }
+
+    }
+
+    @GetMapping("/product/by-brand")
+    public ResponseEntity<ApiResponse> finProductByBrand(@RequestParam String brand){
+        try{
+           List<Product> products=productService.getProductsByBrand(brand);
+            if (products.isEmpty()){
+                return ResponseEntity.status(NOT_FOUND).body(new ApiResponse("No products found",null));
+            }
+            return ResponseEntity.ok(new ApiResponse("success",products));
+        }catch (Exception e){
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(),null));
+        }
+    }
+
+    @GetMapping("/product/{category}/all/products")
+    public ResponseEntity<ApiResponse> findProductByCategory(@PathVariable String category){
+        try {
+            List<Product> products=productService.getProductsByCategory(category);
+            if (products.isEmpty()){
+                return ResponseEntity.status(NOT_FOUND).body(new ApiResponse("No products found",null));
+            }
+            return ResponseEntity.ok(new ApiResponse("success",products));
+        }catch (Exception e){
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(),null));
         }
 
     }

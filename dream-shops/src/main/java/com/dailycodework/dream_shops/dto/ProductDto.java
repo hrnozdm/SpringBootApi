@@ -1,9 +1,6 @@
 package com.dailycodework.dream_shops.dto;
-
 import com.dailycodework.dream_shops.Model.Category;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
-
 import java.math.BigDecimal;
 import java.util.List;
 
