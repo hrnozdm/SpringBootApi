@@ -1,7 +1,7 @@
 package com.dailycodework.dream_shops.service.product;
 import com.dailycodework.dream_shops.Model.Category;
 import com.dailycodework.dream_shops.Model.Product;
-import com.dailycodework.dream_shops.exception.ProductNotFoundException;
+import com.dailycodework.dream_shops.exception.ResourceNotFoundException;
 import com.dailycodework.dream_shops.repository.CategoryRepository;
 import com.dailycodework.dream_shops.repository.ProductRepository;
 import com.dailycodework.dream_shops.request.AddProductRequest;
@@ -18,13 +18,15 @@ public class ProductService implements IProductService{
     private final CategoryRepository categoryRepository;
     @Override
     public Product addProduct(AddProductRequest request) {
-        Category category=categoryRepository.findByName(request.getCategory().getName());
-
-        if (category!=null){
-            category=new Category(request.getCategory().getName());
+        Category category = categoryRepository.findByName(request.getCategory().getName());
+        if (category == null) {
+            category = new Category(request.getCategory().getName());
             categoryRepository.save(category);
         }
-        return  productRepository.save(createProduct(request,category));
+
+
+        Product product = createProduct(request, category);
+        return productRepository.save(product);
 
     }
 
@@ -42,14 +44,14 @@ public class ProductService implements IProductService{
     @Override
     public Product getProductById(Long id) {
         return productRepository.findById(id).
-                orElseThrow(() -> new ProductNotFoundException("Product Not Found"));
+                orElseThrow(() -> new ResourceNotFoundException("Product Not Found"));
     }
 
     @Override
     public void deleteProductById(Long id) {
 
         productRepository.findById(id).
-                ifPresentOrElse(productRepository::delete,()->{throw new ProductNotFoundException("Product Not Found");});
+                ifPresentOrElse(productRepository::delete,()->{throw new ResourceNotFoundException("Product Not Found");});
 
        /* Product product=productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product Not Found"));
         productRepository.delete(product);*/
@@ -59,7 +61,7 @@ public class ProductService implements IProductService{
     @Override
     public void updateProduct(Long productId, Product updatedProduct) {
 
-         Product existingProduct=productRepository.findById(productId).orElseThrow(()->new ProductNotFoundException("Product Not Found"));
+         Product existingProduct=productRepository.findById(productId).orElseThrow(()->new ResourceNotFoundException("Product Not Found"));
 
         existingProduct.setName(updatedProduct.getName());
         existingProduct.setBrand(updatedProduct.getBrand());

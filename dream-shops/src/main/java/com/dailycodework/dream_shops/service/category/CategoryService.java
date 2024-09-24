@@ -32,12 +32,12 @@ public class CategoryService implements ICategoryService{
     }
 
     @Override
-    public Category addCategory(Category category){
+    public void addCategory(Category category){
 
         if (categoryRepository.findByName(category.getName())!=null){
             throw new AlreadyExistsException(category.getName()+"Already Exists");
         }
-        return categoryRepository.save(category);
+        categoryRepository.save(category);
     }
 
 
