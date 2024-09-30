@@ -1,12 +1,10 @@
 package com.dailycodework.dream_shops.service.cart;
 import com.dailycodework.dream_shops.Model.Cart;
-import com.dailycodework.dream_shops.Model.CartItem;
 import com.dailycodework.dream_shops.exception.ResourceNotFoundException;
 import com.dailycodework.dream_shops.repository.CartItemRepository;
 import com.dailycodework.dream_shops.repository.CartRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 
 @Service
@@ -25,7 +23,7 @@ public class CartService implements ICartService{
     }
 
     @Override
-    public void clearCart(Long id) {
+    public void clearCart(Long id){
       Cart cart=getCart(id);
       cartRepository.deleteAllByCartId(id);
       cart.getItems().clear();
