@@ -3,8 +3,10 @@ import com.dailycodework.dream_shops.Model.Cart;
 import com.dailycodework.dream_shops.Model.CartItem;
 import com.dailycodework.dream_shops.Model.Product;
 import com.dailycodework.dream_shops.exception.ResourceNotFoundException;
+import com.dailycodework.dream_shops.repository.CartItemRepository;
 import com.dailycodework.dream_shops.repository.CartRepository;
 import com.dailycodework.dream_shops.service.product.IProductService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,32 +17,31 @@ import java.math.BigDecimal;
 public class CartItemService implements ICartItemService{
 
     private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
     private final IProductService productService;
     private final ICartService cartService;
 
     @Override
-    public void addItemToCart(Long cartId, Long productId, int quantity){
+    public void addItemToCart(Long cartId, Long productId, int quantity) {
+
         Cart cart = cartService.getCart(cartId);
         Product product = productService.getProductById(productId);
-        CartItem cartItem = cart.getItems().stream()
-                .filter(item -> item.getProduct().getId().equals(product.getId()))
-                .findFirst()
-                .orElse(null);
-
-        if (cartItem != null) {
-            cartItem.setQuantity(cartItem.getQuantity() + quantity);
-            cartItem.setTotalPrice();
-
-        } else {
-            CartItem newCartItem = new CartItem();
-            newCartItem.setCart(cart);
-            newCartItem.setProduct(product);
-            newCartItem.setQuantity(quantity);
-            newCartItem.setUnitPrice(product.getPrice());
-            newCartItem.setTotalPrice();
-            cart.addItem(newCartItem);
+        CartItem cartItem = cart.getItems()
+                .stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst().orElse(new CartItem());
+        if (cartItem.getId() == null) {
+            cartItem.setCart(cart);
+            cartItem.setProduct(product);
+            cartItem.setQuantity(quantity);
+            cartItem.setUnitPrice(product.getPrice());
         }
-
+        else {
+            cartItem.setQuantity(cartItem.getQuantity() + quantity);
+        }
+        cartItem.setTotalPrice();
+        cart.addItem(cartItem);
+        cartItemRepository.save(cartItem);
         cartRepository.save(cart);
     }
 
@@ -54,6 +55,7 @@ public class CartItemService implements ICartItemService{
     }
 
     @Override
+    @Transactional
     public void updateItemQuantity(Long cartId, Long productId, int quantity) {
         Cart cart = cartService.getCart(cartId);
         cart.getItems()
@@ -64,6 +66,7 @@ public class CartItemService implements ICartItemService{
                     item.setQuantity(quantity);
                     item.setUnitPrice(item.getProduct().getPrice());
                     item.setTotalPrice();
+                    cartItemRepository.save(item);
                 });
         BigDecimal totalAmount = cart.getItems()
                 .stream().map(CartItem ::getTotalPrice)

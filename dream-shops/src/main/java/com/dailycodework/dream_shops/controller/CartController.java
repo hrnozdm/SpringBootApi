@@ -3,6 +3,7 @@ import com.dailycodework.dream_shops.Model.Cart;
 import com.dailycodework.dream_shops.exception.ResourceNotFoundException;
 import com.dailycodework.dream_shops.response.ApiResponse;
 import com.dailycodework.dream_shops.service.cart.ICartService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,11 +24,13 @@ public class CartController {
             Cart cart=cartService.getCart(cartId);
             return ResponseEntity.ok(new ApiResponse("Success",cart));
         }catch (ResourceNotFoundException e){
+
           return   ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(),NOT_FOUND));
         }
     }
 
 
+    @Transactional
     @DeleteMapping("/{cartId}/clear")
     public ResponseEntity<ApiResponse> clearCart(@PathVariable  Long cartId){
         try {

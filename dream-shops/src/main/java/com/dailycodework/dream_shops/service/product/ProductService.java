@@ -66,7 +66,7 @@ public class ProductService implements IProductService{
     }
 
     @Override
-    public void updateProduct(Long productId, Product updatedProduct) {
+    public Product updateProduct(Long productId, Product updatedProduct) {
 
          Product existingProduct=productRepository.findById(productId).orElseThrow(()->new ResourceNotFoundException("Product Not Found"));
 
@@ -77,7 +77,7 @@ public class ProductService implements IProductService{
         existingProduct.setDescription(updatedProduct.getDescription());
         existingProduct.setCategory(updatedProduct.getCategory());
 
-        productRepository.save(existingProduct);
+        return productRepository.save(existingProduct);
 
     }
 
