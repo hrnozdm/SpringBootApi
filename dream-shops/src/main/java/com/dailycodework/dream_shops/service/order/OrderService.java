@@ -7,6 +7,8 @@ import com.dailycodework.dream_shops.enums.OrderStatus;
 import com.dailycodework.dream_shops.exception.ResourceNotFoundException;
 import com.dailycodework.dream_shops.repository.OrderRepository;
 import com.dailycodework.dream_shops.repository.ProductRepository;
+import com.dailycodework.dream_shops.service.cart.CartService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
@@ -19,10 +21,18 @@ public class OrderService implements IOrderService{
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final CartService cartService;
 
+    @Transactional
     @Override
-    public Order placeOrder(Long userId) {
-        return null;
+    public Order placeOrder(Long userId){
+        Cart cart =cartService.getCartByUserId(userId);
+        Order order = createOrder(cart);
+        List<OrderItem> orderItemList = createOrderItems(order,cart);
+        order.setTotalAmount(calculateTotalAmount(orderItemList));
+        cartService.clearCart(cart.getId());
+
+        return orderRepository.save(order);
     }
 
     private Order createOrder(Cart cart){
@@ -59,5 +69,10 @@ public class OrderService implements IOrderService{
     public Order getOrder(Long orderId) {
         return orderRepository.findById(orderId).
                 orElseThrow(()->new ResourceNotFoundException("Order Not Found"));
+    }
+
+    @Override
+    public List<Order> getUserOrders(Long userId){
+        return orderRepository.findByUserId(userId);
     }
 }
