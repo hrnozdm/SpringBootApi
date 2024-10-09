@@ -1,12 +1,9 @@
 package com.dailycodework.dream_shops.service.order;
 import com.dailycodework.dream_shops.Model.Order;
-
+import com.dailycodework.dream_shops.dto.OrderDto;
 import java.util.List;
-
 public interface IOrderService {
     Order placeOrder(Long userId);
-    Order getOrder(Long orderId);
-
-
-    List<Order> getUserOrders(Long userId);
+    OrderDto getOrder(Long orderId);
+    List<OrderDto> getUserOrders(Long userId);
 }

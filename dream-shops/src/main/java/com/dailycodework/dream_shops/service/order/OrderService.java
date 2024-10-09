@@ -3,6 +3,7 @@ import com.dailycodework.dream_shops.Model.Cart;
 import com.dailycodework.dream_shops.Model.Order;
 import com.dailycodework.dream_shops.Model.OrderItem;
 import com.dailycodework.dream_shops.Model.Product;
+import com.dailycodework.dream_shops.dto.OrderDto;
 import com.dailycodework.dream_shops.enums.OrderStatus;
 import com.dailycodework.dream_shops.exception.ResourceNotFoundException;
 import com.dailycodework.dream_shops.repository.OrderRepository;
@@ -10,6 +11,7 @@ import com.dailycodework.dream_shops.repository.ProductRepository;
 import com.dailycodework.dream_shops.service.cart.CartService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,6 +24,7 @@ public class OrderService implements IOrderService{
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final CartService cartService;
+    private final ModelMapper modelMapper;
 
     @Transactional
     @Override
@@ -66,13 +69,18 @@ public class OrderService implements IOrderService{
     }
 
     @Override
-    public Order getOrder(Long orderId) {
+    public OrderDto getOrder(Long orderId) {
         return orderRepository.findById(orderId).
-                orElseThrow(()->new ResourceNotFoundException("Order Not Found"));
+                map(this::convertToDto).orElseThrow(()->new ResourceNotFoundException("Order Not Found"));
     }
 
     @Override
-    public List<Order> getUserOrders(Long userId){
-        return orderRepository.findByUserId(userId);
+    public List<OrderDto> getUserOrders(Long userId){
+        List<Order> orders = orderRepository.findByUserId(userId);
+        return orders.stream().map(this::convertToDto).toList();
+    }
+
+    private OrderDto convertToDto(Order order){
+        return modelMapper.map(order,OrderDto.class);
     }
 }
